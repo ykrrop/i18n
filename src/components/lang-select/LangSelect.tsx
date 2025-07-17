@@ -1,78 +1,40 @@
-import { type FC, useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import Cookies from "js-cookie";
+import { type FC } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { SUPPORTED_LANGS } from "@/constants";
-import { DoneIcon, EarthIcon } from "@/icons";
-import type { Lang } from "@/types";
+import { useLocale } from "@/lib/use-locale";
 
-import { useClickOutside } from "./hooks";
 import styles from "./styles.module.css";
 
-const LANG_LABEL: Record<Lang, string> = {
-    ru: "Русский",
-    en: "English",
-    ar: "اَلْعَرَبِيَّةُ",
-};
+const LANG_COOKIE_NAME = "i18n-l10n-conf-lang";
 
 export const LangSelect: FC = () => {
-    const [showMenu, setShowMenu] = useState(false);
+    const navigate = useNavigate();
+    const { currentLang, currentRegion } = useLocale();
 
-    const handleMenuClose = useCallback(() => {
-        setShowMenu(false);
-    }, []);
+    const handleLangChange = (lang: string) => {
+        // Save selected language in cookie
+        Cookies.set(LANG_COOKIE_NAME, lang);
 
-    const handleMenuToggle = useCallback(() => {
-        setShowMenu((prevShowMenu) => !prevShowMenu);
-    }, []);
-
-    const langSelectRef = useClickOutside<HTMLDivElement>(handleMenuClose);
-
-    const selectedLang = "ru" as Lang;
+        // Navigate to new URL with selected language
+        const path = window.location.pathname.replace(/^\/[^/]*/, "");
+        const targetLocale = currentRegion ? `${lang}-${currentRegion}` : lang;
+        navigate(`/${targetLocale}${path || ""}`);
+    };
 
     return (
-        <div className={styles.langSelect} ref={langSelectRef}>
-            <button
-                className={styles.langSelectButton}
-                onClick={handleMenuToggle}
-                data-testid="lang-select-button"
-            >
-                <span className={styles.langSelectText}>
-                    {LANG_LABEL[selectedLang]}
-                </span>
-
-                <EarthIcon />
-            </button>
-
-            {showMenu && (
-                <ul
-                    className={styles.langSelectMenu}
-                    data-testid="lang-select-menu"
-                >
-                    {SUPPORTED_LANGS.map((lang) => {
-                        const langName = LANG_LABEL[lang];
-
-                        return (
-                            <Link to="">
-                                <li
-                                    className={styles.langSelectMenuItem}
-                                    key={lang}
-                                    onClick={handleMenuClose}
-                                >
-                                    <span
-                                        className={
-                                            styles.langSelectMenuItemText
-                                        }
-                                    >
-                                        {langName}
-                                    </span>
-
-                                    {lang === selectedLang && <DoneIcon />}
-                                </li>
-                            </Link>
-                        );
-                    })}
-                </ul>
-            )}
-        </div>
+        <select
+            className={styles.select}
+            value={currentLang}
+            onChange={(e) => handleLangChange(e.target.value)}
+            data-testid="lang-select"
+        >
+            {SUPPORTED_LANGS.map((lang) => (
+                <option key={lang} value={lang}>
+                    {lang.toUpperCase()}
+                </option>
+            ))}
+        </select>
     );
 };

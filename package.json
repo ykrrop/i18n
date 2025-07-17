@@ -4,12 +4,14 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "tsc -b && vite build",
+        "dev": "npm run compile-translations && vite",
+        "build": "npm run compile-translations && tsc -b && vite build",
         "preview": "vite preview --host 127.0.0.1 --port 3000",
         "lint": "eslint .",
         "stylelint": "stylelint \"**/*.css\"",
-        "prettier": "prettier . --write"
+        "prettier": "prettier . --write",
+        "compile-translations": "node scripts/compile-translations.js",
+        "extract-messages": "formatjs extract 'src/**/*.{ts,tsx}' --out-file temp-messages.json --id-interpolation-pattern '[sha512:contenthash:base64:6]' && node scripts/extract-messages.js && rm temp-messages.json"
     },
     "dependencies": {
         "@tanstack/react-query": "^5.81.2",

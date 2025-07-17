@@ -1,1 +1,1 @@
-export { geoService } from "./geo-service";
+export { getRegion } from "./geo-service";

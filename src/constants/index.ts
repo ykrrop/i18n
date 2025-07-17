@@ -5,6 +5,7 @@ export { LANG_COOKIE_NAME } from "./lang-cookie-name";
 export { LANG_DIRECTION } from "./lang-direction";
 
 export const SUPPORTED_LANGS = ["ru", "en", "ar"] as const;
+export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
 export const SUPPORTED_LOCALES = [
     "ru",
@@ -14,6 +15,7 @@ export const SUPPORTED_LOCALES = [
     "en",
     "ar",
 ] as const;
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
 export const DEFAULT_LANG: Lang = "en";

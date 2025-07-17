@@ -1,22 +1,25 @@
-const DEV_OVERRIDE_REGION_QUERY_PARAM_NAME = "devOverrideRegion";
+const REGION_QUERY_PARAM = "devOverrideRegion";
 
-interface IGeoService {
-    getCurrentRegion: (queryString: string) => string;
-}
+// Моковая реализация геобазы
+const geobase = {
+    RU: ["213", "2", "3", "4", "5"],
+    BY: ["149", "248", "347", "446", "545"],
+    KZ: ["159", "258", "357", "456", "555"],
+};
 
-class GeoService implements IGeoService {
-    getCurrentRegion(queryString: string): string {
-        const queryParams = new URLSearchParams(queryString);
-        const overrideRegion = queryParams.get(
-            DEV_OVERRIDE_REGION_QUERY_PARAM_NAME
-        );
+export function getRegion(): string | null {
+    // Для тестирования при разработке поддерживаем переопределение региона через query-параметр
+    const urlParams = new URLSearchParams(window.location.search);
+    const overrideRegion = urlParams.get(REGION_QUERY_PARAM);
 
-        if (overrideRegion && overrideRegion.trim() !== "") {
-            return overrideRegion.toUpperCase();
-        }
-
-        return "RU";
+    if (overrideRegion) {
+        return overrideRegion;
     }
-}
 
-export const geoService = new GeoService();
+    // Моковая реализация определения региона пользователя
+    const regions = Object.entries(geobase);
+    const randomRegionIndex = Math.floor(Math.random() * regions.length);
+    const [region] = regions[randomRegionIndex];
+
+    return region;
+}

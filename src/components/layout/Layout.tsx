@@ -1,49 +1,92 @@
-import type { FC, PropsWithChildren } from "react";
+import { type FC, type ReactNode } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import { Link } from "react-router-dom";
 
-import { BRAND_NAMES } from "@/constants";
+import { LangSelect } from "@/components";
+import { BRAND_NAMES } from "@/constants/brand-names";
 import { BrandLogoIcon, TelegramIcon, VkontakteIcon } from "@/icons";
+import { useLocale } from "@/lib/use-locale";
 
-import { LangSelect } from "../lang-select";
 import styles from "./styles.module.css";
 
-export const Layout: FC<PropsWithChildren> = ({ children }) => (
-    <>
-        <div className={styles.header}>
-            <div className={styles.headerContent}>
-                <Link className={styles.headerBrand} to="/">
-                    <BrandLogoIcon />
+type Props = {
+    children: ReactNode;
+};
 
-                    <span className={styles.headerBrandText}>
-                        {BRAND_NAMES["ru"]}
-                    </span>
-                </Link>
+const SOCIAL_LINKS = [
+    {
+        Icon: TelegramIcon,
+        url: "https://t.me/conference",
+        ariaLabel: "Telegram",
+    },
+    {
+        Icon: VkontakteIcon,
+        url: "https://vk.com/conference",
+        ariaLabel: "VKontakte",
+    },
+] as const;
 
-                <LangSelect />
-            </div>
+export const Layout: FC<Props> = ({ children }) => {
+    const { currentLang, isRtl } = useLocale();
+    const intl = useIntl();
+    const brandName = BRAND_NAMES[currentLang];
+
+    return (
+        <div className={styles.layout} dir={isRtl ? "rtl" : "ltr"}>
+            <header className={styles.header}>
+                <div className={styles.headerContent}>
+                    <Link
+                        className={styles.headerBrand}
+                        to="/"
+                        aria-label={brandName}
+                    >
+                        <BrandLogoIcon />
+                        <span className={styles.headerBrandText}>
+                            {brandName}
+                        </span>
+                    </Link>
+
+                    <LangSelect />
+                </div>
+            </header>
+
+            <main className={styles.contentContainer}>{children}</main>
+
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <div className={styles.footerText}>
+                        <FormattedMessage
+                            id="hhmTen"
+                            defaultMessage="© {yearStart}-{yearEnd}, ООО «{brand}». Все права защищены"
+                            values={{
+                                yearStart: "2024",
+                                yearEnd: "2025",
+                                brand: brandName,
+                            }}
+                        />
+                    </div>
+
+                    <nav
+                        className={styles.footerSocialLinks}
+                        aria-label={intl.formatMessage({
+                            id: "k2miQ9",
+                            defaultMessage: "Социальные сети",
+                        })}
+                    >
+                        {SOCIAL_LINKS.map(({ Icon, url, ariaLabel }) => (
+                            <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={ariaLabel}
+                            >
+                                <Icon />
+                            </a>
+                        ))}
+                    </nav>
+                </div>
+            </footer>
         </div>
-
-        <div className={styles.contentContainer}>{children}</div>
-
-        <div className={styles.footer}>
-            <div
-                className={styles.footerSocialLinks}
-                data-testid="social-icons"
-            >
-                {[TelegramIcon, VkontakteIcon].map((Icon, index) => (
-                    <a key={index} href="">
-                        <Icon />
-                    </a>
-                ))}
-            </div>
-
-            <span className={styles.footerText}>
-                © 2024-2025, ООО «
-                <a className={styles.textLink} href="">
-                    {BRAND_NAMES["ru"]}
-                </a>
-                ». Все права защищены
-            </span>
-        </div>
-    </>
-);
+    );
+};
