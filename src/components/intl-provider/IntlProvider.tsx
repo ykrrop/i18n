@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { IntlProvider as ReactIntlProvider } from "react-intl";
 import { useLocation } from "react-router-dom";
 
@@ -13,6 +13,11 @@ type Props = {
 export function IntlProvider({ children }: Props) {
     const { currentLang, isRtl } = useLocale();
     const { pathname } = useLocation();
+
+    // Update HTML lang attribute when language changes
+    useEffect(() => {
+        document.documentElement.lang = currentLang;
+    }, [currentLang]);
 
     // Determine current page from pathname
     const path = pathname.split("/").filter(Boolean);
