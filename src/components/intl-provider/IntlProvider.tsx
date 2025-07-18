@@ -24,7 +24,7 @@ export function IntlProvider({ children }: Props) {
     const page = path[1] === "article" ? `article${path[2]}` : "homePage";
     const pageKey = Object.keys(PAGE_TRANSLATION_KEYS).find(
         (key) => key.toLowerCase() === page.toLowerCase()
-    );
+    ) as keyof typeof PAGE_TRANSLATION_KEYS;
 
     // Load translations for current page
     const { data: messages = {} } = useTranslations(

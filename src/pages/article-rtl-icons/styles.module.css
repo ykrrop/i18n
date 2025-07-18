@@ -17,3 +17,7 @@
     align-items: center;
     justify-content: center;
 }
+
+:dir(rtl) .icons[data-testid="rtl-icons"] svg {
+    transform: scale(-1, 1);
+}

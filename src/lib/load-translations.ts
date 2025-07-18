@@ -1,5 +1,5 @@
 import { type SupportedLang } from "@/constants";
-import { type PAGE_TRANSLATION_KEYS } from "@/page-translation-keys";
+import { PAGE_TRANSLATION_KEYS } from "@/page-translation-keys";
 
 type PageKey = keyof typeof PAGE_TRANSLATION_KEYS;
 
@@ -17,18 +17,26 @@ export async function loadTranslations(
     }
 
     try {
-        // Load compiled translations for the page
-        const response = await fetch(
-            `/translations-compiled/${lang}/${page}.json`
-        );
-        const translations = await response.json();
+        // Load translations from locales directory
+        const response = await fetch(`/src/locales/${lang}.json`);
+        const allTranslations = await response.json();
+
+        // Filter translations for the current page
+        const pageTranslations: Record<string, string> = {};
+        const pageKeys = PAGE_TRANSLATION_KEYS[page];
+
+        for (const key of pageKeys) {
+            if (allTranslations[key]) {
+                pageTranslations[key] = allTranslations[key];
+            }
+        }
 
         // Cache the translations
-        loadedTranslations[cacheKey] = translations;
+        loadedTranslations[cacheKey] = pageTranslations;
 
-        return translations;
+        return pageTranslations;
     } catch (error) {
-        console.error(`Failed to load translations for ${cacheKey}:`, error);
+        console.error(`Failed to load translations for ${lang}:`, error);
         return {};
     }
 }

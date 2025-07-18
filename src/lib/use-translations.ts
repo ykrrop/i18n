@@ -1,20 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { type SupportedLang } from "@/constants";
+import { loadTranslations } from "@/lib/load-translations";
+import { type PAGE_TRANSLATION_KEYS } from "@/page-translation-keys";
 
-export function useTranslations(lang: SupportedLang, page: string) {
+type PageKey = keyof typeof PAGE_TRANSLATION_KEYS;
+
+export function useTranslations(lang: SupportedLang, page: PageKey) {
     return useQuery({
         queryKey: ["translations", lang, page],
-        queryFn: async () => {
-            const response = await fetch(
-                `/translations-compiled/${lang}/${page}.json`
-            );
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to load translations for ${lang}/${page}`
-                );
-            }
-            return response.json();
-        },
+        queryFn: () => loadTranslations(lang, page),
     });
 }
